@@ -1,22 +1,57 @@
+import 'dart:developer';
+
 import 'package:applaudo/modules/searchlist/presentation/blocs/bloc_search_list/searchlist_bloc.dart';
 import 'package:debounce_builder/debounce_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef OnQueryChanged = void Function(String query);
+
 class TextFieldSearch extends StatefulWidget {
-  const TextFieldSearch({Key? key}) : super(key: key);
+  const TextFieldSearch({
+    Key? key,
+    required this.onQueryChanged,
+  }) : super(key: key);
+
+  final OnQueryChanged onQueryChanged;
 
   @override
   State<TextFieldSearch> createState() => _TextFieldSearchState();
 }
 
 class _TextFieldSearchState extends State<TextFieldSearch> {
+  late FocusNode _focusNodeTextField;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNodeTextField = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _listenToKeyBoard();
+    });
+  }
+
+  _listenToKeyBoard() {
+    _focusNodeTextField.addListener(() {
+      if (_focusNodeTextField.hasFocus) {
+        context
+            .read<SearchlistBloc>()
+            .add(OnChangeKeyBoardStatus(isVisibleKeyBoard: true));
+      } else {
+        context
+            .read<SearchlistBloc>()
+            .add(OnChangeKeyBoardStatus(isVisibleKeyBoard: false));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DebounceBuilder(
       delay: const Duration(milliseconds: 700),
       builder: (_, debounce) {
         return TextField(
+          focusNode: _focusNodeTextField,
           style: const TextStyle(
             color: Colors.white,
           ),
@@ -54,13 +89,18 @@ class _TextFieldSearchState extends State<TextFieldSearch> {
             ),
           ),
           onSubmitted: (String query) {
-            context.read<SearchlistBloc>().add(SearchListEvent(query));
+            if (query.isNotEmpty) {
+              context.read<SearchlistBloc>().add(SearchListEvent(query));
+            }
           },
           onChanged: (String query) {
-            debounce(() {
-              FocusScope.of(context).unfocus();
-              context.read<SearchlistBloc>().add(SearchListEvent(query));
-            });
+            if (query.isNotEmpty) {
+              widget.onQueryChanged(query);
+              debounce(() {
+                FocusScope.of(context).unfocus();
+                context.read<SearchlistBloc>().add(SearchListEvent(query));
+              });
+            }
           },
         );
       },

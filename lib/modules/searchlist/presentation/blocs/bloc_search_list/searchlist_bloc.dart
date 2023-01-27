@@ -17,6 +17,16 @@ class SearchlistBloc extends Bloc<SearchlistEvent, SearchlistState> {
 
   SearchlistBloc({required this.searchListCase}) : super(SearchlistInitial()) {
     on<SearchListEvent>(_onSearchListProducts);
+    on<OnChangeKeyBoardStatus>(_onChangeKeyBoardStatus);
+  }
+
+  Future<void> _onChangeKeyBoardStatus(
+      OnChangeKeyBoardStatus event, Emitter<SearchlistState> emit) async {
+    if (event.isVisibleKeyBoard) {
+      emit(KeyBoardAppeared());
+    } else {
+      emit(KeyBoardHidden());
+    }
   }
 
   String getErrorMaped(ErrorType typeError) {

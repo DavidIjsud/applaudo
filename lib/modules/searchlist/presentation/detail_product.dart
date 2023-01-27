@@ -9,8 +9,10 @@ import 'package:shimmer/shimmer.dart';
 class DetailProductPage extends StatefulWidget {
   final String idProduct;
 
-  const DetailProductPage({Key? key, required this.idProduct})
-      : super(key: key);
+  const DetailProductPage({
+    Key? key,
+    required this.idProduct,
+  }) : super(key: key);
 
   @override
   State<DetailProductPage> createState() => _DetailProductPageState();

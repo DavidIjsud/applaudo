@@ -37,3 +37,16 @@ class SuccessRequest extends SearchlistState {
   @override
   List<Object?> get props => [products];
 }
+
+class KeyBoardAppeared extends SearchlistState {
+  KeyBoardAppeared();
+  @override
+  List<Object?> get props => [];
+}
+
+class KeyBoardHidden extends SearchlistState {
+  KeyBoardHidden();
+
+  @override
+  List<Object?> get props => [];
+}

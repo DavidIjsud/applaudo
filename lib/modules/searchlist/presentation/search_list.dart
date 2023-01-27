@@ -14,75 +14,86 @@ class ListProducts extends StatefulWidget {
 }
 
 class _ListProductsState extends State<ListProducts> {
+  String query = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const SliverAppBar(
-            backgroundColor: Color(0xFF121167),
-            titleSpacing: 40.0,
-            toolbarHeight: 150.0,
-            expandedHeight: 150.0,
-            floating: true,
-            snap: true,
-            shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(80),
-                bottomRight: Radius.circular(80),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<SearchlistBloc>().add(SearchListEvent(query));
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: const Color(0xFF121167),
+              titleSpacing: 40.0,
+              toolbarHeight: 150.0,
+              expandedHeight: 150.0,
+              floating: true,
+              snap: true,
+              shape: const ContinuousRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(80),
+                  bottomRight: Radius.circular(80),
+                ),
+              ),
+              flexibleSpace: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FlexibleSpaceBar(
+                  title: TextFieldSearch(
+                    onQueryChanged: (String newQuery) {
+                      query = newQuery;
+                    },
+                  ),
+                  centerTitle: true,
+                ),
               ),
             ),
-            flexibleSpace: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: FlexibleSpaceBar(
-                title: TextFieldSearch(),
-                centerTitle: true,
+            const SliverToBoxAdapter(
+              child: SizedBox(
+                height: 20.0,
               ),
             ),
-          ),
-          const SliverToBoxAdapter(
-            child: SizedBox(
-              height: 20.0,
-            ),
-          ),
-          BlocConsumer<SearchlistBloc, SearchlistState>(
-            listener: (context, state) {
-              if (state is ErrorOnRequest) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      context.read<SearchlistBloc>().getErrorMaped(
-                            state.errorType,
-                          ),
+            BlocConsumer<SearchlistBloc, SearchlistState>(
+              listener: (context, state) {
+                if (state is ErrorOnRequest) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.read<SearchlistBloc>().getErrorMaped(
+                              state.errorType,
+                            ),
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
-            listenWhen: (previous, current) => current is ErrorOnRequest,
-            buildWhen: (previus, current) =>
-                current is SuccessRequest ||
-                current is SearchlistInitial ||
-                current is LoadingRequest,
-            builder: (context, state) {
-              if (state is SuccessRequest) {
-                return ListProduct(products: state.products);
-              }
+                  );
+                }
+              },
+              listenWhen: (previous, current) => current is ErrorOnRequest,
+              buildWhen: (previus, current) =>
+                  current is SuccessRequest ||
+                  current is SearchlistInitial ||
+                  current is LoadingRequest,
+              builder: (context, state) {
+                if (state is SuccessRequest) {
+                  return ListProduct(products: state.products);
+                }
 
-              if (state is LoadingRequest) {
-                return SliverToBoxAdapter(
-                  child: Shimmer.fromColors(
-                    baseColor: const Color(0xffe0e4e7),
-                    highlightColor: Colors.white,
-                    child: const ShimmerList(),
-                  ),
-                );
-              }
+                if (state is LoadingRequest) {
+                  return SliverToBoxAdapter(
+                    child: Shimmer.fromColors(
+                      baseColor: const Color(0xffe0e4e7),
+                      highlightColor: Colors.white,
+                      child: const ShimmerList(),
+                    ),
+                  );
+                }
 
-              return const SliverToBoxAdapter();
-            },
-          ),
-        ],
+                return const SliverToBoxAdapter();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

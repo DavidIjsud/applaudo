@@ -13,7 +13,7 @@ Features of the app:
 
 To take in mind:
 
-    - App done with Flutter 3.3.3
+    - App done with Flutter 3.3.8
     - Five products visited is just a list in the use case  products visited
     - These are the urls used:
        HOST=https://api.mercadolibre.com/sites/MLU/search

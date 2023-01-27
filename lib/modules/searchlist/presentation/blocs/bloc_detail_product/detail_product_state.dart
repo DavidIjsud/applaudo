@@ -14,7 +14,9 @@ class DetailProductLoading extends DetailProductState {}
 class DetailProductLoaded extends DetailProductState {
   final ProductDetailEntity? productDetailEntity;
 
-  const DetailProductLoaded({required this.productDetailEntity});
+  const DetailProductLoaded({
+    required this.productDetailEntity,
+  });
 
   @override
   List<Object> get props => [productDetailEntity ?? ''];
